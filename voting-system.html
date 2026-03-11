@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Voting System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .poll-container {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .poll-option {
+            margin: 10px 0;
+        }
+        .results {
+            display: none;
+            margin-top: 20px;
+        }
+        .progress {
+            background-color: #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+            height: 30px;
+            margin-top: 5px;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: #76c7c0;
+            width: 0;
+            transition: width 0.4s;
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="poll-container">
+        <h2>Create a Poll</h2>
+        <input type="text" id="poll-question" placeholder="Enter your poll question" />
+        <br/>
+        <input type="text" id="option1" placeholder="Option 1" />
+        <input type="text" id="option2" placeholder="Option 2" />
+        <button id="create-poll">Create Poll</button>
+    </div>
+
+    <div class="poll-container" id="vote-section" style="display:none;">
+        <h2>Vote on Poll</h2>
+        <div id="poll-options"></div>
+        <button id="vote-button">Vote</button>
+    </div>
+
+    <div class="results" id="results">
+        <h2>Results</h2>
+        <div id="result-display"></div>
+    </div>
+
+    <script>
+        let pollQuestion = '';
+        let options = [];
+        let votes = new Array(0);
+        let totalVotes = 0;
+
+        document.getElementById('create-poll').addEventListener('click', function() {
+            pollQuestion = document.getElementById('poll-question').value;
+            options.push(document.getElementById('option1').value);
+            options.push(document.getElementById('option2').value);
+            votes = new Array(options.length).fill(0);
+            totalVotes = 0;
+
+            document.getElementById('vote-section').style.display = 'block';
+            document.getElementById('poll-options').innerHTML = options.map((option, index) => 
+                `<div class="poll-option"><input type="radio" name="poll" id="option${index}" value="${index}">${option}</div>`
+            ).join('');
+
+            document.getElementById('poll-question').value = '';
+            document.getElementById('option1').value = '';
+            document.getElementById('option2').value = '';
+        });
+
+        document.getElementById('vote-button').addEventListener('click', function() {
+            const selectedOption = document.querySelector('input[name="poll"]:checked');
+            if (selectedOption) {
+                const choice = parseInt(selectedOption.value);
+                if (votes[choice] === 0) {
+                    votes[choice]++;
+                    totalVotes++;
+                    updateResults();
+                } else {
+                    alert('You have already voted!');
+                }
+            } else {
+                alert('Please select an option to vote.');
+            }
+        });
+
+        function updateResults() {
+            const resultDisplay = document.getElementById('result-display');
+            resultDisplay.innerHTML = options.map((option, index) => {
+                const voteCount = votes[index];
+                const percentage = totalVotes > 0 ? (voteCount / totalVotes) * 100 : 0;
+                return `<div>${option} - ${voteCount} votes <div class="progress"><div class="progress-bar" style="width: ${percentage}%;"></div></div></div>`;
+            }).join('');
+
+            document.getElementById('results').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
